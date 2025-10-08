@@ -1,21 +1,42 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body>
+# 🛠️ Scripts de Pentest
 
-<h1>Scripts de Pentest</h1>
+Coleção de scripts para **segurança ofensiva**, **reconhecimento**, **enumeração** e **varredura**. O foco é praticidade, padronização de saída e automação para uso em laboratório e avaliações autorizadas.
 
-<p>Este repositório contém scripts para auxiliar em testes de penetração. As categorias incluem:</p>
-<ul>
-    <li><strong>Reconhecimento:</strong> Coleta de informações sobre o alvo.</li>
-    <li><strong>Varredura:</strong> Identificação de serviços e vulnerabilidades.</li>
-    <li><strong>Ainda vai ter mais scripts, estou realizando a criação deles.</strong></li>
-</ul>
+[Instalação](#instalação) •
+[Categorias](#categorias) •
+[Uso rápido](#uso-rápido) •
+[Scripts](#scripts) •
+[Roadmap](#roadmap) •
+[Contribuindo](#contribuindo) •
+[Segurança & Ética](#segurança--ética) •
+[Licença](#licença)
 
-<h2>Requisitos</h2>
-<p>Linguagens de programação como Python 3, Bash, PowerShell, C, e outras podem ser necessárias dependendo do script.</p>
-</body>
-</html>
+---
+
+## 📚 Categorias
+
+- **Reconhecimento**: banner grabbing, DNS, metadados, web recon.
+- **Varredura/Enumeração**: port scan (Bash, Python, scapy, C), enum SMTP, FTP.
+- **Utilitários**: parsing HTML, pesquisa/grep, port knocking, sockets em C.
+
+> Linguagens presentes: Python, Shell, C e PowerShell.  
+> (Veja estatísticas nas “Languages” do repositório.)
+
+---
+
+## ⚙️ Instalação
+
+Dependências variam por script. Exemplos:
+
+```bash
+# Python
+python3 --version
+
+# Bash (exemplos)
+sudo apt-get update && sudo apt-get install -y nmap jq dnsutils curl
+
+# PowerShell (opcional)
+pwsh --version
+
+# C (exemplos)
+gcc -O2 -o dns_resolver dns_resolver.c
