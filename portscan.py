@@ -3,6 +3,7 @@ import sys
 import socket
 import argparse
 import concurrent.futures
+from contextlib import suppress
 
 try:
     from tqdm import tqdm
@@ -16,43 +17,64 @@ def mostrar_demo():
     print("python3 scanner.py google.com --start 20 --end 100 --timeout 0.5 --threads 200")
     print("python3 scanner.py 10.0.0.1 --show-closed --resolve\n")
 
+def _format_service_name(porta: int) -> str:
+    with suppress(OSError):
+        return socket.getservbyport(porta)
+    return "Desconhecido"
+
+
 def verifica_porta(host, porta, timeout, show_closed):
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.settimeout(timeout)
             code = s.connect_ex((host, porta))
             if code == 0:
-                try:
-                    servico = socket.getservbyport(porta)
-                except OSError:
-                    servico = "Desconhecido"
+                servico = _format_service_name(porta)
                 print(f"\033[92m[ABERTA]\033[0m Porta {porta} ({servico})")
             elif show_closed:
                 print(f"\033[91m[FECHADA]\033[0m Porta {porta}")
-    except Exception:
-        pass
+    except socket.timeout:
+        if show_closed:
+            print(f"\033[93m[TIMEOUT]\033[0m Porta {porta} - tempo limite excedido")
+    except PermissionError:
+        print(f"\033[91m[ERRO]\033[0m Permissão negada ao tentar acessar a porta {porta}.")
+    except OSError as exc:
+        # Erros de rede diferentes podem ocorrer (ex.: host inalcançável). Mostramos
+        # a mensagem apenas quando o usuário deseja visualizar portas fechadas.
+        if show_closed:
+            print(f"\033[93m[ERRO]\033[0m Porta {porta}: {exc}")
 
 def verifica_portas(host, start, end, timeout, threads, show_closed):
     print(f"\n🔎 Iniciando scan em {host} - Portas {start} a {end}\n")
     portas = range(start, end + 1)
-    executor = concurrent.futures.ThreadPoolExecutor(max_workers=threads)
-
     barra = tqdm(portas, desc="Verificando", unit="porta") if USE_TQDM else portas
-    futures = []
 
-    for porta in barra:
-        futures.append(executor.submit(verifica_porta, host, porta, timeout, show_closed))
+    with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as executor:
+        futures = []
 
-    concurrent.futures.wait(futures)
-    executor.shutdown()
+        for porta in barra:
+            futures.append(executor.submit(verifica_porta, host, porta, timeout, show_closed))
+
+        try:
+            concurrent.futures.wait(futures)
+        except KeyboardInterrupt:
+            for future in futures:
+                future.cancel()
+            raise
 
 def resolve_host(host):
     try:
         ip = socket.gethostbyname(host)
+    except socket.gaierror as exc:
+        print(f"\033[91m🚫 Falha ao resolver o host {host}: {exc}\033[0m")
+        raise
+
+    try:
         nome = socket.gethostbyaddr(ip)[0]
-        print(f"📌 IP Resolvido: {ip} ({nome})")
-    except Exception:
-        print(f"📌 IP Resolvido: {host}")
+    except (socket.herror, socket.gaierror):
+        nome = host
+
+    print(f"📌 IP Resolvido: {ip} ({nome})")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Scanner de portas simples com multithreading")
