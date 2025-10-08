@@ -20,7 +20,6 @@ Coleção de scripts para **segurança ofensiva**, **reconhecimento**, **enumera
 - **Utilitários**: parsing HTML, pesquisa/grep, port knocking, sockets em C.
 
 > Linguagens presentes: Python, Shell, C e PowerShell.  
-> (Veja estatísticas nas “Languages” do repositório.)
 
 ---
 
