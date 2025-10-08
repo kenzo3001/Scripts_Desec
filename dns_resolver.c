@@ -36,20 +36,46 @@ int main(int argc, char *argv[]) {
     }
 
     char subdominio[TAM_MAX];
-    while (fscanf(arquivo, "%s", subdominio) != EOF) {
+    while (fscanf(arquivo, "%255s", subdominio) == 1) {
         char resultado[TAM_MAX];
-        snprintf(resultado, TAM_MAX, "%s.%s", subdominio, alvo); 
+        int tamanho = snprintf(resultado, TAM_MAX, "%s.%s", subdominio, alvo);
 
-        struct addrinfo hints, *res;
+        if (tamanho < 0 || tamanho >= TAM_MAX) {
+            fprintf(stderr, "⚠️  Subdomínio muito grande: %s\n", subdominio);
+            continue;
+        }
+
+        struct addrinfo hints, *res = NULL;
         memset(&hints, 0, sizeof(hints));
         hints.ai_family = AF_INET;
         hints.ai_socktype = SOCK_STREAM;
 
-        if (getaddrinfo(resultado, NULL, &hints, &res) == 0) {
-            struct sockaddr_in *addr = (struct sockaddr_in *)res->ai_addr;
-            printf("🔹 HOST ENCONTRADO: %s ==> IP: %s\n", resultado, inet_ntoa(addr->sin_addr));
-            freeaddrinfo(res);
+        int status = getaddrinfo(resultado, NULL, &hints, &res);
+        if (status != 0) {
+            int ignorable = (status == EAI_NONAME);
+#ifdef EAI_NODATA
+            ignorable = ignorable || (status == EAI_NODATA);
+#endif
+
+            if (!ignorable) {
+                fprintf(stderr, "⚠️  Falha ao resolver %s: %s\n", resultado, gai_strerror(status));
+            }
+            if (res) {
+                freeaddrinfo(res);
+            }
+            continue;
         }
+
+        for (struct addrinfo *ptr = res; ptr != NULL; ptr = ptr->ai_next) {
+            if (ptr->ai_family != AF_INET) {
+                continue;
+            }
+
+            struct sockaddr_in *addr = (struct sockaddr_in *)ptr->ai_addr;
+            printf("🔹 HOST ENCONTRADO: %s ==> IP: %s\n", resultado, inet_ntoa(addr->sin_addr));
+        }
+
+        freeaddrinfo(res);
     }
 
     fclose(arquivo);
