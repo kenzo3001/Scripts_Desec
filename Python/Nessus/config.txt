@@ -1,0 +1,7 @@
+[nessus]
+base_url   = [URL]
+verify_ssl = false
+folder_id  = [ID]
+dest_dir   = [DIRETORIO DE DOWNLOAD]
+username   = [USER]
+password   = [PASS]
