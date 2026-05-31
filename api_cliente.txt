@@ -1,0 +1,2 @@
+TENABLE_ACCESS_KEY=xxxxxxxxxxxx
+TENABLE_SECRET_KEY=xxxxxxxxxxxx
