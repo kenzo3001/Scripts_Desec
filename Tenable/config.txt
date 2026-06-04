@@ -1,0 +1,20 @@
+modulos=vm,was,cloud
+
+access_key=COLE_AQUI_A_ACCESS_KEY
+secret_key=COLE_AQUI_A_SECRET_KEY
+base_url=https://cloud.tenable.com
+
+cloud_graphql_url=https://COLE_AQUI_O_ENDPOINT/graphql
+cloud_token=COLE_AQUI_O_BEARER_TOKEN
+
+nome_cliente=Cliente_A
+chunk_size=5000
+
+# --- Filtros VM ---
+vm_filters={"severity": ["critical", "high"], "state": ["OPEN", "REOPENED"]}
+vm_since_days=90
+
+# --- Filtros WAS ---
+was_filters={"severity": ["medium", "high", "critical"]}
+was_since_days=90
+
